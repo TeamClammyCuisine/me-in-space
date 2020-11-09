@@ -1,56 +1,22 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(PlayerMovementController))]
+[RequireComponent(typeof(OffensiveCharacterAttribute))]
 public class Player : MonoBehaviour, ICharacter
 {
-  
-    private Controls _controls;
-    
-    public float Speed { get; set; }
+    //TODO: Add state memento for time travel
+    public IMovementController MovementController { get; private set; }
+    public ICharacterAttributes CharacterAttributes { get; private set; }
 
-    public float Health { get; set; }
-    
-    public float AttackDamage { get; set; }
-    public float AttackSpeed { get; set; }
-    
     private void Awake()
     {
-        Speed = 5;
-        _controls = new Controls();
+        MovementController = GetComponent<IMovementController>() ?? gameObject.AddComponent<PlayerMovementController>();
+        CharacterAttributes = GetComponent<ICharacterAttributes>() ?? gameObject.AddComponent<OffensiveCharacterAttribute>();
     }
 
     private void FixedUpdate()
     {
-       
-            var direction = _controls.Player.Movement.ReadValue<float>();
-            Debug.Log(direction);
-            var x = direction;
-
-            if (x < 0)
-            {
-                transform.rotation = Quaternion.Euler(0, 180, 0);
-            }
-            else if (x > 0)
-            {
-                transform.rotation = Quaternion.Euler(0, 0, 0);
-            }
-
-            x *= Time.deltaTime * Speed;
-
-            transform.Translate(Math.Abs(x), 0, 0);
-
-    }
-
-    private void OnEnable()
-    {
-        _controls.Player.Enable();
-        
-    }
-
-    private void OnDisable()
-    {
-        _controls.Player.Disable();
+        MovementController.Move();
     }
 }
- 
